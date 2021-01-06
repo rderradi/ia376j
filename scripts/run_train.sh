@@ -1,0 +1,27 @@
+python trainer.py \
+--project_name "rafaelderradi/sandbox" \
+--experiment_name "Test" \
+--data_dir "../data/docvqa/" \
+--checkpoint_path "../models/train/" \
+--checkpoint_monitor "avg_val_f1" \
+--checkpoint_monitor_mode "max" \
+--checkpoint_save_top_k 10 \
+--image_height 640 \
+--image_width 480 \
+--do_train \
+--do_test \
+--effnet_model "efficientnet-b0" \
+--use_advprop \
+--use_image_features \
+--use_image_ocr \
+--use_ocr_bbox \
+--use_synthetic_images \
+--freeze_effnet \
+--t5_model "t5-small" \
+--use_t5_only \
+--freeze_t5 \
+--batch_size 2 \
+--learning_rate 5e-4 \
+--input_max_len 512 \
+--target_max_len 64 \
+--fast_dev_run

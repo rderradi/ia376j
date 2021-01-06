@@ -1,0 +1,7 @@
+pytorch-lightning==1.1.2
+torch==1.7.1
+transformers==3.5.1
+efficientnet-pytorch==0.7.0
+neptune-client==0.4.130
+torchvision==0.8.2
+matplotlib==3.3.3
