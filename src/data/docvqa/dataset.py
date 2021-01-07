@@ -218,7 +218,10 @@ class DocVQADataset(Dataset):
             img = self.transform(img)
 
         question, question_ids, question_bbox = self._get_question(idx)
-        ocr_text, ocr_ids, ocr_bbox = self._get_ocr(idx)
+        if self.use_image_ocr:
+            ocr_text, ocr_ids, ocr_bbox = self._get_ocr(idx)
+        else:
+            ocr_text, ocr_ids, ocr_bbox = '', [], []
 
         input_ids, input_mask, input_bbox = self._prepare_inputs(
             question_ids, question_bbox, ocr_ids, ocr_bbox
