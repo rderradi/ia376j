@@ -72,7 +72,8 @@ class LitEffNetT5(pl.LightningModule):
         # which it is part, thus the input tensor is expected to have the
         # dimensions (B, S, 8) and the output must match the model embedding
         # dimension, i.e. (B, S, D), where B -> batch, S -> sequence, D -> model
-        self.bbox_embedding = nn.Linear(8, self.t5.config.d_model)
+        self.bbox_embedding = nn.Linear(8, self.t5.config.d_model, bias=False)
+        self.bbox_relu = nn.ReLU()
 
         # The image embedding layer takes the features extracted by the effnet
         # and converts them to the appropriate dimensions to match the model
@@ -172,11 +173,13 @@ class LitEffNetT5(pl.LightningModule):
                 # (B, S, 8), (B, h+w, 8) -> (B, S+h+w, 8)
                 bbox = torch.cat([input_bbox, img_bbox_expanded], dim=1)
                 # (B, S+h+w, 8) -> (B, S+h+w, D)
-                bbox_embeds = self.bbox_embedding(bbox.float())
+                bbox_embeds = self.bbox_relu(self.bbox_embedding(bbox.float()))
                 # adds token and bbox embeds
                 inputs_embeds += bbox_embeds
             else:
-                inputs_embeds += self.bbox_embedding(input_bbox.float())
+                bbox = input_bbox.float()
+                bbox_embeds = self.bbox_relu(self.bbox_embedding(bbox))
+                inputs_embeds += bbox_embeds
 
         if self.training:
             return self.t5(inputs_embeds=inputs_embeds,
@@ -275,14 +278,14 @@ class LitEffNetT5(pl.LightningModule):
 
         try:
             self.logger.experiment.log_metrics({
-                'avg_val_exact': avg_exact,
-                'avg_val_f1': avg_f1
+                'avg_test_exact': avg_exact,
+                'avg_test_f1': avg_f1
             })
         except AttributeError:
             pass
 
-        self.log('avg_val_exact', avg_exact)
-        self.log('avg_val_f1', avg_f1)
+        self.log('avg_test_exact', avg_exact)
+        self.log('avg_test_f1', avg_f1)
 
     def configure_optimizers(self):
         return torch.optim.Adam(
